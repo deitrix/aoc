@@ -37,3 +37,10 @@ func Must1[T any](x T, err error) T {
 	}
 	return x
 }
+
+func Abs[T int | uint](x T) T {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

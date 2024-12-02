@@ -56,16 +56,9 @@ func isSafe(levels []int) bool {
 		if diff > 0 != asc {
 			return false // mixture of increasing and decreasing; not safe
 		}
-		if a := abs(diff); a == 0 || a > 3 {
+		if a := Abs(diff); a == 0 || a > 3 {
 			return false // too little or too much of a jump; not safe
 		}
 	}
 	return true
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }

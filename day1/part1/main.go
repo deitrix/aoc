@@ -23,8 +23,8 @@ func main() {
 
 	var distance int
 	for i := 0; i < len(list1); i++ {
-		fmt.Printf("%d %d = %d\n", list1[i], list2[i], max(list1[i], list2[i])-min(list1[i], list2[i]))
-		distance += max(list1[i], list2[i]) - min(list1[i], list2[i])
+		fmt.Printf("%d %d = %d\n", list1[i], list2[i], Abs(list1[i]-list2[i]))
+		distance += Abs(list1[i] - list2[i])
 	}
 
 	fmt.Printf("Total distance: %d\n", distance)
