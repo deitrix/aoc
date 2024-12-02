@@ -5,7 +5,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	. "github.com/deitrix/aoc"
+	"github.com/deitrix/aoc"
 )
 
 func main() {
@@ -13,9 +13,9 @@ func main() {
 	defer tw.Flush()
 
 	var safeCount int
-	for line := range Lines() {
-		levels := Ints(line)
-		Assert(len(levels) > 1, "Expected at least 2 levels")
+	for line := range aoc.Lines() {
+		levels := aoc.Ints(line)
+		aoc.Assert(len(levels) > 1, "Expected at least 2 levels")
 
 		safe := isSafe(levels)
 		if safe {
@@ -36,7 +36,7 @@ func isSafe(levels []int) bool {
 		if diff > 0 != asc {
 			return false // mixture of increasing and decreasing; not safe
 		}
-		if a := Abs(diff); a == 0 || a > 3 {
+		if a := aoc.Abs(diff); a == 0 || a > 3 {
 			return false // too little or too much of a jump; not safe
 		}
 	}

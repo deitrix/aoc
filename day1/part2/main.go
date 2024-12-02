@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 
-	. "github.com/deitrix/aoc"
+	"github.com/deitrix/aoc"
 )
 
 func main() {
 	var list1, list2 []int
-	for line := range Lines() {
-		ids := Ints(line)
-		Assert(len(ids) == 2, "Expected 2 IDs")
+	for line := range aoc.Lines() {
+		ids := aoc.Ints(line)
+		aoc.Assert(len(ids) == 2, "Expected 2 IDs")
 		list1 = append(list1, ids[0])
 		list2 = append(list2, ids[1])
 	}
