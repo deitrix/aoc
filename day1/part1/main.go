@@ -5,11 +5,12 @@ import (
 	"slices"
 
 	"github.com/deitrix/aoc"
+	"github.com/deitrix/aoc/day1"
 )
 
 func main() {
 	var list1, list2 []int
-	for line := range aoc.Lines() {
+	for line := range aoc.Lines(day1.Input) {
 		ids := aoc.Ints(line)
 		aoc.Assert(len(ids) == 2, "Expected 2 IDs")
 		list1 = append(list1, ids[0])

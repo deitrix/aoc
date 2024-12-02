@@ -2,8 +2,8 @@ package aoc
 
 import (
 	"bufio"
+	"bytes"
 	"iter"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -14,14 +14,9 @@ func Assert(cond bool, msg string) {
 	}
 }
 
-func Lines() iter.Seq[string] {
+func Lines(input []byte) iter.Seq[string] {
 	return func(yield func(string) bool) {
-		f, err := os.Open("input.txt")
-		if err != nil {
-			panic(err)
-		}
-		scanner := bufio.NewScanner(f)
-		defer f.Close()
+		scanner := bufio.NewScanner(bytes.NewBuffer(input))
 		for scanner.Scan() {
 			if !yield(scanner.Text()) {
 				break

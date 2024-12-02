@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/deitrix/aoc"
+	"github.com/deitrix/aoc/day2"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 	defer tw.Flush()
 
 	var safeCount int
-	for line := range aoc.Lines() {
+	for line := range aoc.Lines(day2.Input) {
 		levels := aoc.Ints(line)
 		aoc.Assert(len(levels) > 1, "Expected at least 2 levels")
 
