@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	. "github.com/deitrix/aoc"
 )
@@ -11,10 +9,10 @@ import (
 func main() {
 	var list1, list2 []int
 	for line := range Lines() {
-		fields := strings.Fields(line)
-		Assert(len(fields) == 2, "Expected 2 fields")
-		list1 = append(list1, Must1(strconv.Atoi(fields[0])))
-		list2 = append(list2, Must1(strconv.Atoi(fields[1])))
+		ids := Ints(line)
+		Assert(len(ids) == 2, "Expected 2 IDs")
+		list1 = append(list1, ids[0])
+		list2 = append(list2, ids[1])
 	}
 
 	var score int

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strconv"
-	"strings"
 	"text/tabwriter"
 
 	. "github.com/deitrix/aoc"
@@ -17,38 +15,31 @@ func main() {
 
 	var safeCount int
 	for line := range Lines() {
-		fields := strings.Fields(line)
-		Assert(len(fields) > 1, "Expected at least 2 fields")
+		levels := Ints(line)
+		Assert(len(levels) > 1, "Expected at least 2 levels")
 
-		levels := make([]int, len(fields))
-		for i, fld := range fields {
-			levels[i] = Must1(strconv.Atoi(fld))
-		}
-
-		safe := isSafe(levels)
-		dampen := -1 // the index of a level to remove to make it safe
-		if !safe {
-			// If not safe, see if there's a single level we could remove to make it safe.
-			for i := 0; i < len(levels); i++ {
-				safe = isSafe(slices.Delete(slices.Clone(levels), i, i+1))
-				if safe {
-					dampen = i
-					break
-				}
-			}
-		}
-		if safe {
+		// First, check if the levels are safe as-is.
+		if isSafe(levels) {
 			safeCount++
+			fmt.Fprintf(tw, "%s\tsafe = true\tsafeCount = %d\n", line, safeCount)
+			continue
 		}
 
-		if dampen > -1 {
-			fmt.Fprintf(tw, "%s\tsafe = %t (remove [%d])\tsafeCount = %d\n", line, safe, dampen, safeCount)
-		} else {
-			fmt.Fprintf(tw, "%s\tsafe = %t\tsafeCount = %d\n", line, safe, safeCount)
+		// If the levels are not safe, see if we can remove a single level to make them safe.
+		if index := dampen(levels); index > -1 {
+			safeCount++
+			fmt.Fprintf(tw, "%s\tsafe = true (remove [%d])\tsafeCount = %d\n", line, index, safeCount)
+			continue
 		}
+
+		// The levels are not safe, and we cannot make them safe by removing a single level.
+		fmt.Fprintf(tw, "%s\tsafe = false\tsafeCount = %d\n", line, safeCount)
 	}
 }
 
+// isSafe reports whether the given reactor levels are safe. In order for the levels to be safe, they must:
+// - either be all increasing or all decreasing
+// - have a difference of 1, 2, or 3 between each level
 func isSafe(levels []int) bool {
 	asc := levels[1] > levels[0]
 	for i := 0; i < len(levels)-1; i++ {
@@ -61,4 +52,15 @@ func isSafe(levels []int) bool {
 		}
 	}
 	return true
+}
+
+// dampen attempts to remove a single level from the list to make it safe. If successful, it returns
+// the index of the level to remove, otherwise it returns -1.
+func dampen(levels []int) int {
+	for i := 0; i < len(levels); i++ {
+		if isSafe(slices.Delete(slices.Clone(levels), i, i+1)) {
+			return i
+		}
+	}
+	return -1
 }

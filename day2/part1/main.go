@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 	"text/tabwriter"
 
 	. "github.com/deitrix/aoc"
@@ -16,13 +14,8 @@ func main() {
 
 	var safeCount int
 	for line := range Lines() {
-		fields := strings.Fields(line)
-		Assert(len(fields) > 1, "Expected at least 2 fields")
-
-		levels := make([]int, len(fields))
-		for i, fld := range fields {
-			levels[i] = Must1(strconv.Atoi(fld))
-		}
+		levels := Ints(line)
+		Assert(len(levels) > 1, "Expected at least 2 levels")
 
 		safe := isSafe(levels)
 		if safe {
@@ -33,6 +26,9 @@ func main() {
 	}
 }
 
+// isSafe reports whether the given reactor levels are safe. In order for the levels to be safe, they must:
+// - either be all increasing or all decreasing
+// - have a difference of 1, 2, or 3 between each level
 func isSafe(levels []int) bool {
 	asc := levels[1] > levels[0]
 	for i := 0; i < len(levels)-1; i++ {

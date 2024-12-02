@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"iter"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func Assert(cond bool, msg string) {
@@ -29,6 +31,15 @@ func Lines() iter.Seq[string] {
 			panic(err)
 		}
 	}
+}
+
+func Ints(line string) []int {
+	fields := strings.Fields(line)
+	ints := make([]int, len(fields))
+	for i, fld := range fields {
+		ints[i] = Must1(strconv.Atoi(fld))
+	}
+	return ints
 }
 
 func Must1[T any](x T, err error) T {
