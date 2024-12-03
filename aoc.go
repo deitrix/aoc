@@ -37,6 +37,10 @@ func Ints(line string) []int {
 	return ints
 }
 
+func Int(s string) int {
+	return Must1(strconv.Atoi(s))
+}
+
 func Must1[T any](x T, err error) T {
 	if err != nil {
 		panic(err)
