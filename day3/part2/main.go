@@ -69,6 +69,7 @@ func main() {
 		}
 		fmt.Fprintf(tw, "%d\t%s\t%s\t%s\t%d\n", stmt[1], stmt, state, result, total)
 	}
+	slices.Delete()
 }
 
 // Stmt is a single instruction in the input program. It is a 4-tuple where the first element is the
