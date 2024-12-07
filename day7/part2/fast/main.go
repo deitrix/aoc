@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"iter"
 	"slices"
 	"strings"
 
@@ -23,117 +24,90 @@ func parseCalibrations(lines []string) []Calibration {
 }
 
 func main() {
-	//f, err := os.Create("cpu.prof")
-	//if err != nil {
-	//	log.Fatal("could not create CPU profile: ", err)
-	//}
-	//defer f.Close() // error handling omitted for example
-	//if err := pprof.StartCPUProfile(f); err != nil {
-	//	log.Fatal("could not start CPU profile: ", err)
-	//}
-	//defer pprof.StopCPUProfile()
-
 	calibrations := parseCalibrations(slices.Collect(aoc.Lines(day7.Input)))
 	var maxOperands int
 	var maxOperand int
-	var log10Operands int
 	for _, cal := range calibrations {
-		if len(cal.Operands) > maxOperands {
-			maxOperands = len(cal.Operands)
-		}
-		log10Operands += len(cal.Operands) - 1
+		maxOperands = max(maxOperands, len(cal.Operands))
 		for _, operand := range cal.Operands {
 			maxOperand = max(maxOperand, operand)
 		}
 	}
 
-	// pre-compute opForPerm results, as it gets called millions of times.
-	opForPermCache = make([]int, permCount(maxOperands)*(maxOperands-1))
-	opForPermWidth = maxOperands - 1
-	for i := 0; i < permCount(maxOperands); i++ {
-		for j := 0; j < maxOperands-1; j++ {
-			opForPermCache[i*opForPermWidth+j] = opForPerm(j, i)
-		}
-	}
-
-	// pre-compute log10 results, as it gets called millions of times.
-	log10Cache = make([]int, log10Operands)
+	// pre-compute log10 and pow10 results, as it gets called millions of times.
+	log10Cache = make([]int, maxOperand+1)
+	pow10Cache = make([]int, maxOperands+1)
 	for _, cal := range calibrations {
 		for _, operand := range cal.Operands[1:] {
-			log10Cache[operand] = log10(operand)
-		}
-	}
-
-	results := make(chan int)
-	for _, cal := range calibrations {
-		go func() {
-			solution := firstSolution(cal.Expected, cal.Operands)
-			if solution > -1 {
-				results <- cal.Expected
-			} else {
-				results <- 0
+			if log10Cache[operand] == 0 {
+				log10Cache[operand] = log10(operand)
+				pow10Cache[log10Cache[operand]] = pow(10, log10Cache[operand])
 			}
-		}()
+		}
 	}
 
 	var result int
-	for range len(calibrations) {
-		result += <-results
+	for _, cal := range calibrations {
+		if hasSolution(cal.Expected, cal.Operands) {
+			result += cal.Expected
+		}
 	}
 
 	fmt.Printf("Result: %d\n", result)
 }
 
-// firstSolution returns the first permutation of operators that results in the expected answer.
+// hasSolution returns the first permutation of operators that results in the expected answer.
 // It returns -1 if no solution is found.
-func firstSolution(expected int, operands []int) int {
-	for i := 0; i < permCount(len(operands)); i++ {
-		if calculate(operands, i) == expected {
-			return i
+func hasSolution(expected int, operands []int) bool {
+	for operators := range operatorPermutations(len(operands) - 1) {
+		if calculate(operands, operators) == expected {
+			return true
 		}
 	}
 
-	return -1
+	return false
 }
 
-const ops = 3
+const operatorCount = 3
+
+func operatorPermutations(size int) iter.Seq[[]int] {
+	s := make([]int, size)
+	return func(yield func([]int) bool) {
+		var recurse func(index int) bool
+		recurse = func(index int) bool {
+			for x := range operatorCount {
+				s[index] = x
+				if index < size-1 {
+					if !recurse(index + 1) {
+						return false
+					}
+				} else {
+					if !yield(s) {
+						return false
+					}
+				}
+			}
+			return true
+		}
+		recurse(0)
+	}
+}
 
 // calculate applies the given permutation of operators to the given operands. It returns the answer
 // to the expression.
-func calculate(operands []int, opPerm int) int {
+func calculate(operands []int, operators []int) int {
 	answer := operands[0]
-	for j := 0; j < len(operands)-1; j++ {
-		op := opForPermCache[opPerm*opForPermWidth+j]
-		switch op {
+	for j, operand := range operands[1:] {
+		switch operators[j] {
 		case 0:
-			answer = answer + operands[j+1]
+			answer = answer + operand
 		case 1:
-			answer = answer * operands[j+1]
+			answer = answer * operand
 		case 2:
-			answer = answer*pow(10, log10Cache[operands[j+1]]) + operands[j+1]
+			answer = answer*pow10Cache[log10Cache[operand]] + operand
 		}
 	}
 	return answer
-}
-
-// permCount returns the number of permutations of the given operators between the operands. Given
-// an input of operands: 3, operators: 2, where the two operators correspond to * and /, the
-// possible permutations are: (3 * 3 / 3), (3 / 3 * 3), (3 * 3 * 3), (3 / 3 / 3). So, numPerms(3, 2)
-// would return 4.
-//
-// This is simply: operators^(operands-1).
-func permCount(operands int) int {
-	return pow(ops, operands-1)
-}
-
-var opForPermCache []int
-var opForPermWidth int
-
-// opForPerm returns the operation to use at the given index of the permutation.
-//
-// This is simply: op = (perm / (operators^i)) % operators
-func opForPerm(i, perm int) int {
-	return perm / pow(ops, i) % ops
 }
 
 func parseCalibration(line string) (cal Calibration) {
@@ -145,6 +119,8 @@ func parseCalibration(line string) (cal Calibration) {
 	}
 	return cal
 }
+
+var pow10Cache []int
 
 // pow is faster than math.Pow for small powers.
 func pow(a, b int) int {
