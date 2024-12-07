@@ -3,6 +3,7 @@ package aoc
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"iter"
 	"strconv"
 	"strings"
@@ -53,4 +54,12 @@ func Abs[T int | uint](x T) T {
 		return -x
 	}
 	return x
+}
+
+func Join[T any](s []T, sep string) string {
+	ss := make([]string, len(s))
+	for i, x := range s {
+		ss[i] = fmt.Sprint(x)
+	}
+	return strings.Join(ss, sep)
 }

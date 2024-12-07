@@ -36,7 +36,6 @@ FindGuard:
 
 	patrolled := make(map[[2]int]bool)
 
-	// Uncomment the following lines to use the uilive package to render the grid in real-time.
 	uw := uilive.New()
 	render := func() {
 		buf := new(bytes.Buffer)
@@ -59,7 +58,6 @@ FindGuard:
 	}
 
 	for {
-		// Uncomment the following line to render the grid in real-time.
 		render()
 		time.Sleep(time.Second / 100)
 
